@@ -1,0 +1,124 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Livres - Gestion de Bibliothèque</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #fff; font-family: 'Roboto', sans-serif; }
+        
+        /* Navbar style image */
+        .navbar { background: white !important; border-bottom: 1px solid #eee; padding: 15px 50px; }
+        .navbar-brand { font-family: 'Playfair Display', serif; font-weight: bold; color: #1a1a1a !important; font-size: 1.5rem; }
+        .nav-link { color: #555 !important; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; margin: 0 10px; }
+        .nav-link.active { border-bottom: 2px solid #d4af37; color: #1a1a1a !important; }
+        .user-info { font-size: 0.8rem; color: #888; text-transform: uppercase; }
+
+        .container-main { padding: 40px 50px; }
+        h2 { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 30px; color: #1a1a1a; }
+
+        /* Bouton Nouveau Livre (Doré) */
+        .btn-gold { background-color: #c5a059; color: white; border-radius: 0; padding: 10px 25px; text-transform: uppercase; font-weight: bold; font-size: 0.8rem; border: none; }
+        .btn-gold:hover { background-color: #b38f4d; color: white; }
+
+        /* Barre de recherche noire */
+        .search-bar { background: #f8f8f8; border: 1px solid #eee; padding: 0; display: flex; align-items: center; margin-bottom: 40px; }
+        .search-bar select, .search-bar input { border: none; background: transparent; padding: 15px; font-size: 0.9rem; }
+        .search-bar select { border-right: 1px solid #eee; width: 250px; }
+        .search-bar input { flex-grow: 1; }
+        .btn-search { background: #1a1a1a; color: white; border-radius: 0; padding: 15px 40px; text-transform: uppercase; font-weight: bold; font-size: 0.8rem; border: none; }
+
+        /* Tableau style minimaliste */
+        .table { font-size: 0.85rem; border-top: 1px solid #1a1a1a; }
+        .table thead th { text-transform: uppercase; color: #888; font-weight: 400; border-bottom: 1px solid #1a1a1a; padding: 15px; }
+        .table tbody td { vertical-align: middle; padding: 15px; border-bottom: 1px solid #eee; }
+        .book-title { font-weight: bold; font-size: 1rem; }
+
+        /* Boutons Actions */
+        .btn-action { border-radius: 0; font-size: 0.75rem; font-weight: bold; padding: 5px 15px; text-transform: uppercase; border: none; margin-right: 5px; }
+        .btn-details { background: #fff; border: 1px solid #1a1a1a; color: #1a1a1a; }
+        .btn-modify { background: #ffc107; color: #000; }
+        .btn-delete { background: #dc3545; color: #fff; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Gestion de Bibliothèque</a>
+        <div class="collapse navbar-collapse justify-content-center">
+            <div class="navbar-nav">
+                <a class="nav-link active" href="${pageContext.request.contextPath}/livres">Livres</a>
+                <a class="nav-link" href="${pageContext.request.contextPath}/auteurs">Auteurs</a>
+            </div>
+        </div>
+        <div class="d-flex align-items-center">
+            <span class="user-info me-3">Bonjour, ${sessionScope.user.admin}@admin.com</span>
+            <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-dark btn-sm rounded-0">DÉCONNEXION</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-main">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Liste des Livres</h2>
+        <c:if test="${isAdmin && !viewOnly}">
+            <a href="${pageContext.request.contextPath}/livres/add" class="btn btn-gold">+ NOUVEAU LIVRE</a>
+        </c:if>
+    </div>
+
+    <form action="${pageContext.request.contextPath}/livres" method="get" class="search-bar">
+        <select name="searchField" class="form-select shadow-none">
+            <option value="titre">Titre</option>
+            <option value="isbn">ISBN</option>
+            <option value="editeur">Éditeur</option>
+        </select>
+        <input type="text" name="keyword" placeholder="Rechercher..." class="form-control shadow-none">
+        <button type="submit" class="btn btn-search">RECHERCHER</button>
+    </form>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ISBN</th>
+                <th>TITRE</th>
+                <th>AUTEUR</th>
+                <th>ÉDITEUR</th>
+                <th>DATE D'ÉDITION</th>
+                <th>ACTIONS</th>
+            </tr>
+        </thead>
+        <tbody>
+            <c:forEach var="livre" items="${livres}">
+                <tr>
+                    <td class="text-muted">${livre.isbn}</td>
+                    <td class="book-title">${livre.titre}</td>
+                    <td>${livre.auteur.prenom} ${livre.auteur.nom}</td>
+                    <td>${livre.editeur}</td>
+                    <td>${livre.dateEditionFormatted}</td>
+                    <td>
+    <a href="${pageContext.request.contextPath}/livres/details?isbn=${livre.isbn}" 
+       class="btn btn-action btn-details">Détails</a>
+    
+    <c:if test="${isAdmin && !viewOnly}">
+        <a href="${pageContext.request.contextPath}/livres/edit?isbn=${livre.isbn}" 
+           class="btn btn-action btn-modify">Modifier</a>
+        
+        <a href="${pageContext.request.contextPath}/livres/delete?isbn=${livre.isbn}" 
+           class="btn btn-action btn-delete" 
+           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce livre ?');">Supprimer</a>
+    </c:if>
+</td>
+                </tr>
+            </c:forEach>
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

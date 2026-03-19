@@ -32,7 +32,8 @@ public class UserDAO {
     }
 
     public User findByLogin(String login, String password) {
-        String sql = "SELECT * FROM user WHERE login = ? AND password = ?";
+        String sql = "SELECT * FROM \"user\" WHERE login = ? AND password = ?";
+
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, login);

@@ -5,9 +5,9 @@ DROP TABLE IF EXISTS "user";
 
 -- 2. Table AUTEUR (Utilisation de INT pour correspondre à ton Model Java)
 CREATE TABLE AUTEUR (
-    matricule INT PRIMARY KEY, 
-    nom VARCHAR(100) NOT NULL,
-    prenom VARCHAR(100) NOT NULL,
+                        atricule INT PRIMARY KEY,
+                        nom VARCHAR(100) NOT NULL,
+                        m  prenom VARCHAR(100) NOT NULL,
     genre VARCHAR(20) CHECK (genre IN ('Masculin', 'Féminin')) NOT NULL
 );
 
